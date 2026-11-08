@@ -16,20 +16,29 @@ function reset() {
   result.removeAttribute('data-state');
   result.textContent = '평가를 실행하면 이곳에 판정과 근거가 표시됩니다.';
 }
-function show(data, example = false, target = result) {
-  if (!data || !decisions.has(data.decision) || !Array.isArray(data.reason) || !data.reason.every(item => typeof item === 'string')) {
-    throw new Error('API 응답의 decision과 reason 형식을 확인하세요.');
-  }
+function show(data, example = false) {
   const title = document.createElement('strong');
-  title.textContent = (example ? 'C03 예시 · ' : '') + decisions.get(data.decision);
+  title.textContent = (example ? '예시 · ' : '') + (decisions.get(data.decision) || data.decision);
+  const label = document.createElement('h3');
+  label.textContent = '판정 근거';
   const list = document.createElement('ul');
+  list.className = 'findings';
   for (const reason of data.reason) {
     const item = document.createElement('li');
-    item.textContent = reason;
+    const match = reason.match(/^\[([^\]]+)\]\s*/);
+    if (match) {
+      const tag = document.createElement('span');
+      tag.className = 'finding-tag';
+      tag.dataset.level = match[1];
+      tag.textContent = match[1];
+      item.append(tag);
+    }
+    item.append(document.createTextNode(reason.slice(match?.[0].length || 0)));
     list.append(item);
   }
-  target.dataset.state = data.decision;
-  target.replaceChildren(title, list);
+  result.dataset.state = data.decision;
+  result.replaceChildren(title);
+  if (list.childElementCount) result.append(label, list);
 }
 form.addEventListener('change', reset);
 demo.onclick = () => show({decision:'danger',reason:['[위험] 보증금+근저당이 보증 한도(공동주택가격×126%) 초과 — 등기부·건축물대장·계약서','[주의] 소유권 이전 후 90일 이내 계약 — 등기부 갑구·계약서']}, true);
@@ -58,7 +67,13 @@ form.onsubmit = async event => {
     link.href = downloadUrl;
     link.download = file.name.replace(/\.[^.]+$/, '') + '-결과.json';
     link.textContent = '결과 JSON 다운로드';
-    result.replaceChildren(link, pre);
+    if (typeof data?.decision === 'string' && Array.isArray(data.reason) &&
+        data.reason.every(reason => typeof reason === 'string')) {
+      show(data);
+    } else {
+      result.replaceChildren(pre);
+    }
+    result.append(link);
   } catch (error) {
     result.textContent = '평가 실패 · ' + error.message;
   } finally {

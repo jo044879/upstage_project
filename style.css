@@ -62,3 +62,12 @@ label.dragging { outline: 2px dashed var(--gold); outline-offset: -2px; backgrou
   main > p { max-width: 32ch; }
 }
 pre {white-space: pre-wrap; overflow-wrap: anywhere;}
+
+#result > strong { display: block; font-size: clamp(28px, 3vw, 38px); line-height: 1.25; }
+#result h3 { font-size: 14px; margin: 24px 0 8px; color: var(--muted); }
+#result .findings { padding: 0; margin: 0; list-style: none; }
+.findings li { padding: 14px 16px; border: 1px solid #ffffff20; border-radius: 10px; background: #0c1725; line-height: 1.65; }
+.finding-tag { display: table; margin-bottom: 6px; border-radius: 5px; padding: 1px 7px; font-size: 12px; font-weight: 700; color: #d8e3ff; background: #293753; }
+.finding-tag[data-level="위험"] { color: #ffc1b6; background: #4e2d30; }
+.finding-tag[data-level="주의"] { color: #ffdc9d; background: #463824; }
+#result a { display: inline-block; margin-top: 20px; color: var(--gold); text-underline-offset: 4px; font-size: 14px; }
