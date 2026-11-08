@@ -42,7 +42,10 @@ async function evaluate(req) {
     job = await api('responses/' + encodeURIComponent(job.id) + '?include[]=last');
   }
   if (job.status !== 'completed') throw new Error('Upstage 작업 상태: ' + job.status);
-  return JSON.parse(job.output_text ?? job.output?.at(-1)?.content?.find(item => item.type === 'output_text')?.text);
+  const decoded = JSON.parse(job.output_text ?? job.output?.at(-1)?.content?.find(item => item.type === 'output_text')?.text);
+  const result = typeof decoded === 'string' ? JSON.parse(decoded) : decoded;
+  if (!result || typeof result !== 'object') throw new Error('분석 결과의 JSON 형식을 확인하세요.');
+  return result;
 }
 
 http.createServer(async (req, res) => {
