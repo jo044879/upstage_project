@@ -23,7 +23,9 @@ function show(data, example = false) {
   label.textContent = '판정 근거';
   const list = document.createElement('ul');
   list.className = 'findings';
-  for (const reason of data.reason) {
+  for (const rawReason of data.reason) {
+    const reason = rawReason.replace(/【\s*[†t]\s*\d+\s*】|\[\s*[†t]\s*\d+\s*\]/gi, '').trim();
+    if (!reason) continue;
     const item = document.createElement('li');
     const match = reason.match(/^\[([^\]]+)\]\s*/);
     if (match) {
