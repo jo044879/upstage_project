@@ -45,6 +45,9 @@ form.onsubmit = async event => {
     const response = await fetch(API_URL, {
       method: 'POST', headers: {'x-file-name': encodeURIComponent(file.name)}, body: file
     });
+    if (!response.headers.get('content-type')?.includes('application/json')) {
+      throw new Error('평가 API에서 JSON 응답을 받지 못했습니다 (HTTP ' + response.status + ').');
+    }
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'HTTP ' + response.status);
     const json = JSON.stringify(data, null, 2);
