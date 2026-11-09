@@ -72,3 +72,4 @@ pre {white-space: pre-wrap; overflow-wrap: anywhere;}
 .finding-tag[data-level="주의"] { color: #ffdc9d; background: #463824; }
 #result a { display: inline-block; margin-top: 20px; color: var(--gold); text-underline-offset: 4px; font-size: 14px; }
 #result details { margin-top: 18px; font-size: 14px; } #result summary { cursor: pointer; } #result details p { margin-top: 6px; }
+#result details h4 { margin: 16px 0 4px; color: var(--cream); } #result details p { line-height: 1.7; }
