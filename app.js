@@ -89,9 +89,28 @@ form.onsubmit = async event => {
   result.removeAttribute('data-state');
   result.textContent = '분석 중…';
   try {
-    const response = await fetch(API_URL, {
-      method: 'POST', headers: {'x-file-name': encodeURIComponent(file.name)}, body: file
+    let response = await fetch(API_URL, {
+      method: 'POST', headers: {Prefer: 'respond-async', 'x-file-name': encodeURIComponent(file.name)}, body: file
     });
+    if (response.status === 202) {
+      const job = await response.json();
+      const headers = {'x-workflow-id': job.id, 'x-workflow-token': job.token};
+      let failures = 0;
+      do {
+        await new Promise(resolve => setTimeout(resolve, failures ? 5000 : 2500));
+        try {
+          response = await fetch(API_URL, {headers, cache: 'no-store'});
+          if (response.status >= 500 || response.status === 429) throw new Error('작업 조회 실패 (HTTP ' + response.status + ')');
+          failures = 0;
+        } catch (error) {
+          if (++failures >= 5) throw error;
+          result.textContent = '연결을 다시 확인하고 있습니다…';
+          continue;
+        }
+        result.textContent = '서류를 분석하고 있습니다…';
+        if (response.status !== 202) break;
+      } while (true);
+    }
     if (!response.headers.get('content-type')?.includes('application/json')) {
       throw new Error('평가 API에서 JSON 응답을 받지 못했습니다 (HTTP ' + response.status + ').');
     }
